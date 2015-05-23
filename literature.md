@@ -1,0 +1,1 @@
+http://www.quantstart.com/articles/Parallelising-Python-with-Threading-and-Multiprocessing
