@@ -19,6 +19,7 @@ class BaseCrawler:
     def __init__(self, **kwargs):
         debug = kwargs.get('debug', False)
         self.debug = debug
+        self.crawled = set()
 
     def check_multiprocess(self, **kwargs):
         """Checks if multithreading support is active."""
@@ -29,6 +30,13 @@ class BaseCrawler:
     def crawl(self, url, maxlevel, **kwargs):
         """Wrapper function for the crawling function."""
 
+        # should not do a recursive crawl for the same link
+        if url in self.crawled:
+            return {
+                    "crawl_status": False,
+                    "reason": "RECURSIVE_LOOP",
+                }
+        self.crawled.add(url)
         time1 = time.time()
         res = self._crawl(url, maxlevel, **kwargs)
         time2 = time.time()
@@ -66,12 +74,6 @@ class BaseCrawler:
         for link in links:
             # Get the absolute URL
             link = urllib.parse.urljoin(url, link)
-            # should not do a recursive crawl for the same link
-            if link == url:
-                return {
-                        "crawl_status": False,
-                        "reason": "RECURSIVE_LOOP",
-                    }
             retDict['links'][link] = self.crawl(link, maxlevel-1, **kwargs)
 
         return retDict
