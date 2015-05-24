@@ -12,8 +12,8 @@ from crawler.utils.jsonhelpers import EnhancedJSONEncoder
 
 reEmail = re.compile(r'([\w\.,]+@[\w\.,]+\.\w+)')
 
-reLink = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-# reLink = re.compile(r'href="(.*?)"')
+# reLink = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+reLink = re.compile(r'href="(.*?)"')
 
 
 class BaseCrawler:
@@ -37,7 +37,7 @@ class BaseCrawler:
             raise Exception("You have not crawled anything yet!")
         return EnhancedJSONEncoder().encode(self.result)
 
-    def crawl(self, url, maxlevel=3, max_links=None, **kwargs):
+    def crawl(self, url, maxLevel=3, maxLinks=None, **kwargs):
         """Entry to crawling function.
         Resets the crawled links."""
 
@@ -45,9 +45,9 @@ class BaseCrawler:
         self.crawled = set()
         if hasattr(self, 'result'):
             del self.result
-        return self._crawl_wrapper(url, maxlevel, max_links, **kwargs)
+        return self._crawl_wrapper(url, maxLevel, maxLinks, **kwargs)
 
-    def _crawl_wrapper(self, url, maxlevel=3, max_links=None, **kwargs):
+    def _crawl_wrapper(self, url, maxLevel=3, maxLinks=None, **kwargs):
         """Wrapper function for the crawling function.
         This can be overwritten by the child class for its own formatting.
         """
@@ -60,16 +60,16 @@ class BaseCrawler:
                 }
         self.crawled.add(url)
         time1 = time.time()
-        res = self._crawl_implementation(url, maxlevel, max_links, **kwargs)
+        res = self._crawl_implementation(url, maxLevel, maxLinks, **kwargs)
         time2 = time.time()
         res['stats'] = {'time': (time2-time1)*1000}
         self.result = res
         return res
 
-    def _crawl_implementation(self, url, maxlevel, max_links, **kwargs):
+    def _crawl_implementation(self, url, maxLevel, maxLinks, **kwargs):
         """Implements the crawling part."""
 
-        if maxlevel <= 0:
+        if maxLevel <= 0:
             return {
                 "crawl_status": False,
                 "reason": "MAX_DEPTH_REACHED",
@@ -94,12 +94,13 @@ class BaseCrawler:
         }
         # Find and follow all the links
         links = reLink.findall(res.text)
-        # for links upto max_links, crawl recursivly
+        print(url, maxLevel, links)
+        # for links upto maxLinks, crawl recursivly
         for link in links:
             # Get the absolute URL
             link = urllib.parse.urljoin(url, link)
             retDict['links'][link] = self._crawl_wrapper(
-                    link, maxlevel-1, **kwargs)
+                    link, maxLevel-1, **kwargs)
 
         return retDict
 
