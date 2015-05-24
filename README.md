@@ -14,3 +14,9 @@ A very small and very simple web crawler
 
 Regex used:  
 https://regex101.com/r/oN6dE6/10
+
+--------
+### To be implemented:
+
++ Multithreading
++ Derived crawler classes
