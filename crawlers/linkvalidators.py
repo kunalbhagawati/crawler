@@ -34,10 +34,17 @@ class URLOnlyValidator(BasicValidator):
         if not link:
             return False
 
-        pathSplit = [i for i in urllib.parse.urlparse(link)[2].split('/') if i]
-        fileName = pathSplit[-1]
-        fSplit = fileName.split(".")
-        if fSplit[-1] == fileName:
-            return True
-        fileExt = fSplit[-1]
+        try:
+            pathSplit = [i for i in (urllib
+                    .parse
+                    .urlparse(link)[2]
+                    .split('/'))
+                if i]
+            fileName = pathSplit[-1]
+            fSplit = fileName.split(".")
+            if fSplit[-1] == fileName:
+                return True
+            fileExt = fSplit[-1]
+        except IndexError:
+            return False
         return fileExt in self.ALLOWED_TYPES
