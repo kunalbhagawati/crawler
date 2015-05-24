@@ -35,7 +35,7 @@ class BaseCrawler:
             raise Exception("You have not crawled anything yet!")
         return json.dumps(self.result)
 
-    def crawl(self, url, maxlevel, **kwargs):
+    def crawl(self, url, maxlevel, max_links=None, **kwargs):
         """Wrapper function for the crawling function."""
 
         # should not do a recursive crawl for the same link
@@ -52,7 +52,7 @@ class BaseCrawler:
         self.result = res
         return res
 
-    def _crawl(self, url, maxlevel, **kwargs):
+    def _crawl(self, url, maxlevel, max_links=None, **kwargs):
         """Implements the crawling part."""
 
         if maxlevel <= 0:
@@ -80,7 +80,8 @@ class BaseCrawler:
         }
         # Find and follow all the links
         links = reLink.findall(res.text)
-        for link in links:
+        # for links upto max_links, crawl recursivly
+        for link in links[:max_links]:
             # Get the absolute URL
             link = urllib.parse.urljoin(url, link)
             retDict['links'][link] = self.crawl(link, maxlevel-1, **kwargs)
