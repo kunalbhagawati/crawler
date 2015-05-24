@@ -38,7 +38,19 @@ class BaseCrawler:
         return EnhancedJSONEncoder().encode(self.result)
 
     def crawl(self, url, maxlevel=3, max_links=None, **kwargs):
-        """Wrapper function for the crawling function."""
+        """Entry to crawling function.
+        Resets the crawled links."""
+
+        # clear the crawled set and the result
+        self.crawled = set()
+        if hasattr(self, 'result'):
+            del self.result
+        return self._crawl_wrapper(url, maxlevel, max_links, **kwargs)
+
+    def _crawl_wrapper(self, url, maxlevel=3, max_links=None, **kwargs):
+        """Wrapper function for the crawling function.
+        This can be overwritten by the child class for its own formatting.
+        """
 
         # should not do a recursive crawl for the same link
         if url in self.crawled:
@@ -48,13 +60,13 @@ class BaseCrawler:
                 }
         self.crawled.add(url)
         time1 = time.time()
-        res = self._crawl(url, maxlevel, max_links, **kwargs)
+        res = self._crawl_implementation(url, maxlevel, max_links, **kwargs)
         time2 = time.time()
         res['stats'] = {'time': (time2-time1)*1000}
         self.result = res
         return res
 
-    def _crawl(self, url, maxlevel, max_links, **kwargs):
+    def _crawl_implementation(self, url, maxlevel, max_links, **kwargs):
         """Implements the crawling part."""
 
         if maxlevel <= 0:
@@ -83,10 +95,11 @@ class BaseCrawler:
         # Find and follow all the links
         links = reLink.findall(res.text)
         # for links upto max_links, crawl recursivly
-        for link in links[:max_links]:
+        for link in links:
             # Get the absolute URL
             link = urllib.parse.urljoin(url, link)
-            retDict['links'][link] = self.crawl(link, maxlevel-1, **kwargs)
+            retDict['links'][link] = self._crawl_wrapper(
+                    link, maxlevel-1, **kwargs)
 
         return retDict
 
