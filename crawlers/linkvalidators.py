@@ -16,7 +16,7 @@ class BasicValidator:
         return set([x for y in links for x in y if self._validate(x)])
 
     def _validate(self, link):
-        return True
+        return True if link else False
 
 
 class URLOnlyValidator(BasicValidator):
@@ -31,9 +31,10 @@ class URLOnlyValidator(BasicValidator):
     }
 
     def _validate(self, link):
-        print(link)
+        if not link:
+            return False
+
         pathSplit = [i for i in urllib.parse.urlparse(link)[2].split('/') if i]
-        print(pathSplit)
         fileName = pathSplit[-1]
         fSplit = fileName.split(".")
         if fSplit[-1] == fileName:

@@ -89,8 +89,7 @@ class BaseCrawler(linkvalidators.BasicValidator):
         # Find and follow all the links
         links = regexes.RE_LINK.findall(res.text)
         linksSet = self.get_valid_links(links)
-        print(linksSet)
-        exit()
+
         # for links upto maxLinks, crawl recursivly
         for link in linksSet:
             # Get the absolute URL
