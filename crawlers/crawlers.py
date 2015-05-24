@@ -35,7 +35,7 @@ class BaseCrawler:
             raise Exception("You have not crawled anything yet!")
         return json.dumps(self.result)
 
-    def crawl(self, url, maxlevel, max_links=None, **kwargs):
+    def crawl(self, url, maxlevel=3, max_links=None, **kwargs):
         """Wrapper function for the crawling function."""
 
         # should not do a recursive crawl for the same link
@@ -52,7 +52,7 @@ class BaseCrawler:
         self.result = res
         return res
 
-    def _crawl(self, url, maxlevel, max_links=None, **kwargs):
+    def _crawl(self, url, maxlevel, max_links, **kwargs):
         """Implements the crawling part."""
 
         if maxlevel <= 0:
