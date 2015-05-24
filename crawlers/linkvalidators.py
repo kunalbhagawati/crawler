@@ -12,7 +12,7 @@ class BasicValidator:
 
         Must return a single valued iterable.
         """
-
+        print(links)
         return set([x for y in links for x in y if self._validate(x)])
 
     def _validate(self, link):
@@ -31,10 +31,12 @@ class URLOnlyValidator(BasicValidator):
     }
 
     def _validate(self, link):
-        return (True
-                if (urllib
-                    .parse
-                    .urlparse(link)[2]
-                    .split('/')[-1]
-                    .split(".")[-1])
-                in self.ALLOWED_TYPES else False)
+        print(link)
+        pathSplit = [i for i in urllib.parse.urlparse(link)[2].split('/') if i]
+        print(pathSplit)
+        fileName = pathSplit[-1]
+        fSplit = fileName.split(".")
+        if fSplit[-1] == fileName:
+            return True
+        fileExt = fSplit[-1]
+        return fileExt in self.ALLOWED_TYPES
