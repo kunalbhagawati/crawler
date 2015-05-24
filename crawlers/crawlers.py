@@ -6,12 +6,14 @@ import urllib
 from pprint import pprint
 import time
 import sys
-import json
+
+from crawler.utils.jsonhelpers import EnhancedJSONEncoder
 
 
 reEmail = re.compile(r'([\w\.,]+@[\w\.,]+\.\w+)')
 
-reLink = re.compile(r'href="(.*?)"')
+reLink = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+# reLink = re.compile(r'href="(.*?)"')
 
 
 class BaseCrawler:
@@ -33,7 +35,7 @@ class BaseCrawler:
 
         if not hasattr(self, 'result'):
             raise Exception("You have not crawled anything yet!")
-        return json.dumps(self.result)
+        return EnhancedJSONEncoder().encode(self.result)
 
     def crawl(self, url, maxlevel=3, max_links=None, **kwargs):
         """Wrapper function for the crawling function."""
@@ -46,7 +48,7 @@ class BaseCrawler:
                 }
         self.crawled.add(url)
         time1 = time.time()
-        res = self._crawl(url, maxlevel, **kwargs)
+        res = self._crawl(url, maxlevel, max_links, **kwargs)
         time2 = time.time()
         res['stats'] = {'time': (time2-time1)*1000}
         self.result = res
@@ -87,6 +89,10 @@ class BaseCrawler:
             retDict['links'][link] = self.crawl(link, maxlevel-1, **kwargs)
 
         return retDict
+
+
+# class EmailCrawler(BaseCrawler):
+
 
 if __name__ == '__main__':
     url = sys.argv[1:2][0]
