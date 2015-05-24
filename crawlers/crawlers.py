@@ -12,8 +12,8 @@ from crawler.utils.jsonhelpers import EnhancedJSONEncoder
 
 reEmail = re.compile(r'([\w\.,]+@[\w\.,]+\.\w+)')
 
-# reLink = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-reLink = re.compile(r'href="(.*?)"')
+reLink = re.compile(r'(?:((?:http[s]?:\/\/)?(?:www|www2)?(?:[0-9-a-z]+\.[a-z\/\.?=&]*))|(?:href="(.*?)"))')
+# reLink = re.compile(r'href="(.*?)"')
 
 
 class BaseCrawler:
@@ -94,9 +94,10 @@ class BaseCrawler:
         }
         # Find and follow all the links
         links = reLink.findall(res.text)
-        print(url, maxLevel, links)
+        linksSet = set([x for y in links for x in y if x])
+
         # for links upto maxLinks, crawl recursivly
-        for link in links:
+        for link in linksSet:
             # Get the absolute URL
             link = urllib.parse.urljoin(url, link)
             retDict['links'][link] = self._crawl_wrapper(

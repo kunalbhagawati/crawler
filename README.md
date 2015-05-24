@@ -11,3 +11,6 @@ A very small and very simple web crawler
 + External libraries you may need to download:
     - requests
     - urllib
+
+Regex used:  
+https://regex101.com/r/oN6dE6/10
