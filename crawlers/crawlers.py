@@ -88,7 +88,7 @@ class BaseCrawler(linkvalidators.BasicValidator):
         }
         # Find and follow all the links
         links = regexes.RE_LINK.findall(res.text)
-        linksSet = self._get_valid_links(links)
+        linksSet = self.get_valid_links(links)
 
         # for links upto maxLinks, crawl recursivly
         for link in linksSet:
@@ -100,16 +100,12 @@ class BaseCrawler(linkvalidators.BasicValidator):
         return retDict
 
 
-class URLOnlyCrawler(BaseCrawler):
+class URLOnlyCrawler(
+        linkvalidators.URLOnlyValidator,
+        BaseCrawler):
     """Only crawls URL and not inside files, etc."""
 
-    def _crawl_wrapper(url, maxLevel=3, maxLinks=None, **kwargs):
-        """Extension of parent class function.
-        Does not permit crawling of text files, documents, etc.
-        i.e. only crawls links.
-        """
-
-        return super()._crawl_wrapper(url, maxLevel, maxLinks, **kwargs)
+    pass
 
 if __name__ == '__main__':
     url = sys.argv[1:2][0]
