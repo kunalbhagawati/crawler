@@ -1,22 +1,16 @@
 """Holds the classes that implement the crawlers."""
 
 import requests
-import re
 import urllib
 from pprint import pprint
 import time
 import sys
 
 from crawler.utils.jsonhelpers import EnhancedJSONEncoder
+from . import linkvalidators, regexes
 
 
-reEmail = re.compile(r'([\w\.,]+@[\w\.,]+\.\w+)')
-
-reLink = re.compile(r'(?:((?:http[s]?:\/\/)?(?:www|www2)?(?:[0-9-a-z]+\.[a-z\/\.?=&]*))|(?:href="(.*?)"))')
-# reLink = re.compile(r'href="(.*?)"')
-
-
-class BaseCrawler:
+class BaseCrawler(linkvalidators.BasicValidator):
     """Base crawler class."""
 
     def __init__(self, **kwargs):
@@ -93,8 +87,8 @@ class BaseCrawler:
             "response_status": res.status_code,
         }
         # Find and follow all the links
-        links = reLink.findall(res.text)
-        linksSet = set([x for y in links for x in y if x])
+        links = regexes.RE_LINK.findall(res.text)
+        linksSet = self._get_valid_links(links)
 
         # for links upto maxLinks, crawl recursivly
         for link in linksSet:
@@ -106,8 +100,16 @@ class BaseCrawler:
         return retDict
 
 
-# class EmailCrawler(BaseCrawler):
+class URLOnlyCrawler(BaseCrawler):
+    """Only crawls URL and not inside files, etc."""
 
+    def _crawl_wrapper(url, maxLevel=3, maxLinks=None, **kwargs):
+        """Extension of parent class function.
+        Does not permit crawling of text files, documents, etc.
+        i.e. only crawls links.
+        """
+
+        return super()._crawl_wrapper(url, maxLevel, maxLinks, **kwargs)
 
 if __name__ == '__main__':
     url = sys.argv[1:2][0]
