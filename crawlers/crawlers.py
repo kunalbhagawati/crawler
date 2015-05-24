@@ -6,6 +6,7 @@ import urllib
 from pprint import pprint
 import time
 import sys
+import json
 
 
 reEmail = re.compile(r'([\w\.,]+@[\w\.,]+\.\w+)')
@@ -27,6 +28,13 @@ class BaseCrawler:
         # dummy for now.
         return False
 
+    def as_json(self):
+        """Returns the crawled result as json."""
+
+        if not hasattr(self, 'result'):
+            raise Exception("You have not crawled anything yet!")
+        return json.dumps(self.result)
+
     def crawl(self, url, maxlevel, **kwargs):
         """Wrapper function for the crawling function."""
 
@@ -41,6 +49,7 @@ class BaseCrawler:
         res = self._crawl(url, maxlevel, **kwargs)
         time2 = time.time()
         res['stats'] = {'time': (time2-time1)*1000}
+        self.result = res
         return res
 
     def _crawl(self, url, maxlevel, **kwargs):
